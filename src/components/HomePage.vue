@@ -1,7 +1,4 @@
 <template>
-    <div v-if="loading && !filteredMovies.length">
-        <p>Loading ...</p> <!-- ✅ Loading appears immediately -->
-    </div>
     <div class="movies_view" v-if="filteredMovies.length">
         <div class="movie-card" v-for="movie in filteredMovies" :key="movie.id">
             <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
@@ -20,7 +17,7 @@
 
         </div>
     </div>
-    <p v-else-if="!loading && !filteredMovies.length && !dataFetch">No results found.</p>
+    <p v-else-if="!filteredMovies.length && !dataFetch">No results found.</p>
 </template>
 
 <script>
@@ -34,7 +31,6 @@ export default {
             movies: [],
             filteredMovies: [],
             favorites: [],
-            loading: true,
             dataFetch: true
         }
     },
@@ -76,18 +72,14 @@ export default {
         },
 
         filterMovies(query) {
-            this.loading = true;
-            setTimeout(() => {
-                if (!query) {
-                    this.filteredMovies = this.movies;
-                } else {
-                    const lowerCaseQuery = query.toLowerCase();
-                    this.filteredMovies = this.movies.filter(movie =>
-                        movie.Title.toLowerCase().includes(lowerCaseQuery)
-                    );
-                }
-                this.loading = false; // ✅ Stop loading after filtering
-            }, 300);
+            if (!query) {
+                this.filteredMovies = this.movies;
+            } else {
+                const lowerCaseQuery = query.toLowerCase();
+                this.filteredMovies = this.movies.filter(movie =>
+                    movie.Title.toLowerCase().includes(lowerCaseQuery)
+                );
+            }
         }
     },
     async mounted() {

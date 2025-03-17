@@ -3,7 +3,9 @@ import LogIn from "./components/LogIn.vue";
 import UserProfile from "./components/UserProfile.vue";
 import FavMovies from "./components/FavMovies.vue";
 import SignUp from "./components/SignUp.vue";
+import GenrePage from "./components/GenrePage.vue";
 import { createRouter, createWebHistory } from 'vue-router';
+
 
 const routes = [
     {
@@ -30,7 +32,12 @@ const routes = [
         name: 'FavMovies',
         component: FavMovies,
         path: '/fav-movies'
-    }
+    },
+    {
+        name: 'GenrePage',
+        component: GenrePage,
+        path: '/genre/:genre'
+    },
 ];
 
 const router = createRouter({

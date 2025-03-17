@@ -6,10 +6,16 @@
         </template>
         <template v-else>
             <router-link to="/">Home</router-link>
-            <router-link to="#">Genres</router-link>
+            <div class="dropdown">
+                <div class="dropdown-button">Genres ▼</div>
+                <div class="dropdown-content">
+                    <a v-for="genre in genres" :key="genre" @click="navigateToGenre(genre)">
+                        {{ genre }}
+                    </a>
+                </div>
+            </div>
             <router-link to="fav-movies">My List</router-link>
             <MovieSearch />
-
             <router-link to="/profile">My Profile</router-link>
             <a v-on:click="logout" ref="">Log Out</a>
         </template>
@@ -26,7 +32,9 @@ export default {
     data() {
         return {
             // returns true when user logged in
-            isUserLoggedIn: !!localStorage.getItem('user')
+            isUserLoggedIn: !!localStorage.getItem('user'),
+            selectedGenre: '',
+            genres: ['Action', 'Biography', 'Crime', 'Drama', 'Sci-Fi']
         }
     },
     // created() {  //lifecycle hook-> executed after the component is initialized but before it's mounted.
@@ -43,6 +51,9 @@ export default {
         checkUserStatus() {
             let user = localStorage.getItem('user')
             this.isUserLoggedIn = !!user; //!! check here if the value of user true (loogedin) OR false (not logged in)
+        },
+        navigateToGenre(selectedGenre) {
+            this.$router.push({ name: 'GenrePage', params: { genre: selectedGenre } });
         },
         logout() {
             localStorage.removeItem('user');
@@ -74,5 +85,45 @@ export default {
 
 .nav a:hover {
     background: yellow;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.dropdown-button {
+    color: #fff;
+    padding: 10px 15px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #2a2a2a;
+    min-width: 120px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+    /* ✅ Show dropdown on hover */
+}
+
+.dropdown-content a {
+    color: #fff;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #444;
 }
 </style>

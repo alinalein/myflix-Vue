@@ -14,32 +14,30 @@ export default {
     },
     methods: {
         async searchMovies() {
-            // ✅ Redirect to HomePage only if not already there
-            if (this.$route.name !== 'HomePage') {
-                await this.$router.push({ name: 'HomePage', query: { q: this.searchQuery } });
-            } else {
-                this.$router.replace({
-                    ...this.$route,
-                    query: { ...this.$route.query, q: this.searchQuery }
-                });
-            }
+            const isOnHomePage = this.$route.name === 'HomePage';
+
+            // Use `push` if navigating to HomePage, otherwise use `replace` to update the query
+            this.$router[isOnHomePage ? 'replace' : 'push']({
+                name: 'HomePage',
+                query: { q: this.searchQuery }
+            });
         },
 
         resetSearchQuery() {
             if (this.$route.name !== 'HomePage') {
-                this.searchQuery = '';  // ✅ Only reset the query when NOT on HomePage
+                this.searchQuery = '';  //  reset the query when NOT on HomePage
 
-                const newQuery = { ...this.$route.query };
-                delete newQuery.q;
-
-                this.$router.replace({ ...this.$route, query: newQuery });
+                this.$router.replace({ // updates the URL without adding a new history entry
+                    ...this.$route,
+                    query: { ...this.$route.query, q: undefined }// removes the query parameter 
+                });
             }
         }
     },
     watch: {
-        '$route'(to, from) {
+        '$route'(to, from) { // detects when the route changes and resets the search query if the user navigates away from HomePage
             if (to.name !== from.name && to.name !== 'HomePage') {
-                this.resetSearchQuery();  // ✅ Only reset when leaving HomePage
+                this.resetSearchQuery();
             }
         }
     }
