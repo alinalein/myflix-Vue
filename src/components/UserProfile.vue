@@ -1,12 +1,14 @@
 <template>
-    <p>Username: {{ userName }}</p>
-    <p>E-Mail: {{ eMail }}</p>
-    <p>Birthday: {{ birthDay }}</p>
 
-    <input type="text" v-model="tempUserName" placeholder="Username" />
-    <input type="text" v-model="tempEmail" placeholder="E-Mail" />
-    <input type="date" v-model="tempBirthday" placeholder="Birthday" />
-    <button type="button" v-on:click="updateProfile">Update Profile</button>
+    <form @submit.prevent="updateProfile" class="signUp">
+        <label for="username">Username</label>
+        <input type="text" v-model="username" placeholder="Username" required />
+        <label for="username">E-Mail</label>
+        <input type="text" v-model="email" placeholder="E-Mail" required />
+        <label for="Cirthday">E-Mail</label>
+        <input placeholder="Birthday" type="date" v-model="birthday" required />
+        <button type="submit">Update Profile</button>
+    </form>
 
     <button type="button" @click="deleteProfile">Delete Profile</button>
 </template>
@@ -17,38 +19,42 @@ export default {
     name: 'UserProfile',
     data() {
         return {
-            userName: '',
-            eMail: '',
-            birthDay: '',
-
-            tempUserName: '',
-            tempEmail: '',
-            tempBirthday: ''
+            username: '',
+            email: '',
+            birthday: '',
         }
     },
     methods: {
         async updateProfile() {
+            const confirmation = confirm("Are you sure you want to change your details.");
+
+            if (!confirmation) {
+                return;
+            }
+            const formattedBirthday = new Date(this.birthday).toISOString().split('T')[0];
+
             try {
                 const user = JSON.parse(localStorage.getItem('user'))
                 const token = localStorage.getItem('token')
                 console.log('Token:', token);
+                console.log('username', user.Username)
                 let response = await axios.put(`https://movie-api-lina-834bc70d6952.herokuapp.com/users/update/${user.Username}`,
                     {
-                        Username: this.tempUserName,
-                        Email: this.tempEmail,
-                        Birthday: this.tempBirthday
+                        Username: this.username,
+                        Email: this.email,
+                        Birthday: formattedBirthday
 
                     }, {
                     headers: { Authorization: `Bearer ${token}` }
                 })
                 if (response.status === 200) {
-                    const updatedUser = { ...user, ...response.data.updatedUser };
+                    const updatedUser = { ...user, ...response.data };
                     localStorage.setItem('user', JSON.stringify(updatedUser));
 
                     console.log('udated User', updatedUser)
-                    this.userName = updatedUser.Username;
-                    this.eMail = updatedUser.Email;
-                    this.birthDay = updatedUser.Birthday;
+                    this.username = updatedUser.Username;
+                    this.email = updatedUser.Email;
+                    this.birthday = updatedUser.Birthday.split('T')[0];
 
                     alert('Profile updated successfully!');
                 }
@@ -56,8 +62,7 @@ export default {
                 if (error.response?.status === 400) {
                     alert('Permission denied')
                 } else if (error.response?.status === 409) {
-                    const conflictingUsername = error.data?.updatedUser?.Username || this.userName;
-                    alert(`${conflictingUsername} already exists, please pick another Username.`);
+                    alert(`${this.username} already exists, please pick another Username.`);
                 } else {
                     console.error('Error updating profile:', error.response?.data || error.message);
                     alert('Unexpected error occured')
@@ -65,10 +70,14 @@ export default {
             }
         },
         async deleteProfile() {
+            const confirmation = confirm("Are you sure you want to delete your profile? This action cannot be undone.");
+
+            if (!confirmation) {
+                return;
+            }
             try {
                 const user = JSON.parse(localStorage.getItem('user'))
                 const token = localStorage.getItem('token')
-                console.log('Token:', token);
                 let response = await axios.delete(`https://movie-api-lina-834bc70d6952.herokuapp.com/users/deregister/${user.Username}`,
                     {
                         headers: { Authorization: `Bearer ${token}` }
@@ -84,22 +93,24 @@ export default {
                 console.error('Error deleting profile:', error.response?.data || error.message);
                 alert('Profile could not be deleted')
             }
+        },
+        formatDate(date) {
+            if (!date) return '';
+            const parsedDate = new Date(date);
+            return parsedDate.toLocaleDateString('en-GB'); // Formats as DD/MM/YYYY
         }
 
     },
     mounted() {
         const userData = JSON.parse(localStorage.getItem('user'));
-
+        if (userData && userData.Birthday) {
+            // Ensure the date is correctly formatted as "YYYY-MM-DD"
+            const parsedDate = new Date(userData.Birthday).toISOString().split('T')[0];
+            this.birthday = parsedDate;
+        }
         if (userData) {
-            // Displayed data
-            this.userName = userData.Username || '';
-            this.eMail = userData.Email || '';
-            this.birthDay = userData.Birthday || '';
-
-            // Initialize temporary fields for editing
-            this.tempUserName = this.userName;
-            this.tempEmail = this.eMail;
-            this.tempBirthday = this.birthDay;
+            this.username = userData.Username || '';
+            this.email = userData.Email || '';
         }
     }
 }
