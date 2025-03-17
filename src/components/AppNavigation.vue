@@ -14,7 +14,8 @@
                     </a>
                 </div>
             </div>
-            <router-link to="fav-movies">My List</router-link>
+
+            <router-link to="/fav-movies">My List</router-link>
             <MovieSearch />
             <router-link to="/profile">My Profile</router-link>
             <a v-on:click="logout" ref="">Log Out</a>

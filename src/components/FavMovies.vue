@@ -5,23 +5,30 @@
             <p>
                 {{ movie.Title }}
             </p>
-            <p>
-                {{ movie.Director.Name }}
-            </p>
+
+            <button @click="showMovieDetails(movie)">
+                Show Movie Details
+            </button>
             <button @click="handleDelete(movie._id)">Remove From Favorites</button>
         </div>
     </div>
+    <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
 </template>
 
 <script>
 import axios from 'axios';
+import MovieDetails from './MovieDetails.vue';
 import { deleteMovie } from '../utils/helpers';
 export default {
     name: 'FavMovies',
+    components: {
+        MovieDetails
+    },
     data() {
         return {
             movies: [],
-            favMovies: []
+            favMovies: [],
+            selectedMovie: null
         }
     },
     methods: {
@@ -54,7 +61,10 @@ export default {
             } catch (error) {
                 console.error('Error deleting movie:', error.response?.data || error.message);
             }
-        }
+        },
+        showMovieDetails(movie) {
+            this.selectedMovie = movie;
+        },
     },
     mounted() {
         this.fetchMovies();

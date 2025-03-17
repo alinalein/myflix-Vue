@@ -5,9 +5,9 @@
             <p>
                 {{ movie.Title }}
             </p>
-            <p>
-                {{ movie.Director.Name }}
-            </p>
+            <button @click="showMovieDetails(movie)">
+                Show Movie Details
+            </button>
             <button v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
                 Remove from Favorites
             </button>
@@ -18,20 +18,25 @@
         </div>
     </div>
     <p v-else-if="!filteredMovies.length && !dataFetch">No results found.</p>
+    <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
 </template>
 
 <script>
-
+import MovieDetails from './MovieDetails.vue';
 import { deleteMovie, addMovie, fetchMovies } from '../utils/helpers';
 
 export default {
     name: 'HomePage',
+    components: {
+        MovieDetails
+    },
     data() {
         return {
             movies: [],
             filteredMovies: [],
             favorites: [],
-            dataFetch: true
+            dataFetch: true,
+            selectedMovie: null
         }
     },
     watch: {
@@ -80,7 +85,10 @@ export default {
                     movie.Title.toLowerCase().includes(lowerCaseQuery)
                 );
             }
-        }
+        },
+        showMovieDetails(movie) {
+            this.selectedMovie = movie;
+        },
     },
     async mounted() {
         await this.fetchMovies();  // calls api call to get all movies on load 

@@ -29,15 +29,16 @@ const routes = [
         path: '/profile'
     },
     {
-        name: 'FavMovies',
-        component: FavMovies,
-        path: '/fav-movies'
-    },
-    {
         name: 'GenrePage',
         component: GenrePage,
         path: '/genre/:genre'
     },
+    {
+        name: 'FavMovies',
+        component: FavMovies,
+        path: '/fav-movies'
+    },
+
 ];
 
 const router = createRouter({

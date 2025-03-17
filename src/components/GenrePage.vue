@@ -6,7 +6,10 @@
             <div class="movie-card" v-for="movie in filteredMovies" :key="movie.id">
                 <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
                 <p>{{ movie.Title }}</p>
-                <p>{{ movie.Director.Name }}</p>
+
+                <button @click="showMovieDetails(movie)">
+                    Show Movie Details
+                </button>
                 <button v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
                     Remove from Favorites
                 </button>
@@ -17,20 +20,26 @@
         </div>
 
         <p v-else>No movies found for this genre.</p>
+        <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
     </div>
 </template>
 
 <script>
+import MovieDetails from './MovieDetails.vue';
 import { deleteMovie, addMovie, fetchMovies } from '../utils/helpers';
 
 export default {
     name: 'GenrePage',
+    components: {
+        MovieDetails
+    },
     data() {
         return {
             movies: [],
             filteredMovies: [],
             favorites: [],
-            genre: ''
+            genre: '',
+            selectedMovie: null
         }
     },
     watch: {
@@ -61,7 +70,10 @@ export default {
             this.filteredMovies = this.movies.filter(
                 movie => movie.Genre?.Name === this.genre
             );
-        }
+        },
+        showMovieDetails(movie) {
+            this.selectedMovie = movie;
+        },
     },
     async mounted() {
         this.movies = await fetchMovies();
