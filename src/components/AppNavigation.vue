@@ -40,6 +40,7 @@ export default {
         },
         logout() {
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
             this.isUserLoggedIn = false;
             this.$router.push({ name: 'LogIn' })
         }

@@ -1,11 +1,12 @@
 <template>
     <div class="background">
         <h1 class="title_log_in">Log In</h1>
-        <div class="logIn">
-            <input type="text" v-model="username" placeholder="Username" />
-            <input type="password" v-model="password" placeholder="Password" />
-            <button type="button" v-on:click="login">Log In</button>
-        </div>
+
+        <form @submit.prevent="login" class="logIn">
+            <input type="text" v-model="username" placeholder="Username" required />
+            <input type="password" v-model="password" placeholder="Password" required />
+            <button type="submit">Log In</button>
+        </form>
         <p>
             <router-link class="link_log-in" to="/sign-up">Sign Up</router-link>
         </p>
@@ -40,7 +41,7 @@ export default {
                     this.$router.push({ name: 'HomePage' })
                 }
             } catch (error) {
-                if (error.status === 400) {
+                if (error.response && error.response.status === 400) {
                     alert('could not sign in, please check your login credentials')
                 } else {
                     alert('Unexpected error')
@@ -50,8 +51,9 @@ export default {
     },
     mounted() {
         let userData = localStorage.getItem('user')
+        let token = localStorage.getItem('token')
         // when user data found in localstorage, redirect to homepage
-        if (userData) {
+        if (userData && token) {
             this.$router.push({ name: 'HomePage' });
         }
     }

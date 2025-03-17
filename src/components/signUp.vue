@@ -2,13 +2,13 @@
     <div class="background">
         <h1 class="title_sign_up">Sign Up </h1>
 
-        <div class="signUp">
-            <input type="text" v-model="username" placeholder="Enter Username" />
-            <input type="email" v-model="email" placeholder="Enter Email" />
-            <input type="date" v-model="birthday" placeholder="Enter Birthday" />
-            <input type="password" v-model="password" placeholder="Enter Password" />
-            <button type="button" v-on:click="signup">Sign Up </button>
-        </div>
+        <form @submit.prevent="signup" class="signUp">
+            <input type="text" v-model="username" placeholder="Enter Username" required />
+            <input type="email" v-model="email" placeholder="Enter Email" required />
+            <input type="date" v-model="birthday" placeholder="Enter Birthday" required />
+            <input type="password" v-model="password" placeholder="Enter Password" required />
+            <button type="submit">Sign Up</button>
+        </form>
         <p>
             <router-link class="link_sign-up" to="/log-in">Log In</router-link>
         </p>
@@ -42,13 +42,12 @@ export default {
                     })
 
                 if (response.status === 201) {
-                    this.$router.push({ name: 'HomePage' })
-                    localStorage.setItem('user', JSON.stringify(response.data.user))
-                    localStorage.setItem('token', response.data.token)
+                    this.$router.push({ name: 'LogIn' })
+                    alert('Successfully created the user profile')
                 }
             }
             catch (error) {
-                if (error.status === 422) {
+                if (error.response && error.response.status === 400) {
                     alert('could not sign up, please fill out all fields accordingly ')
                 } else if (error.status === 409) {
                     alert('username already exist, please pick another one')
@@ -61,8 +60,9 @@ export default {
     },
     mounted() {
         let userData = localStorage.getItem('user')
+        let token = localStorage.getItem('token')
         // when user data found in localstorage, redirect to homepage
-        if (userData) {
+        if (userData && token) {
             this.$router.push({ name: 'HomePage' });
         }
     }
