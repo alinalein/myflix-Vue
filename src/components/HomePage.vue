@@ -1,6 +1,9 @@
 <template>
-    <div class="movies_view">
-        <div class="movie-card" v-for="movie in movies" :key="movie.id">
+    <div v-if="loading && !filteredMovies.length">
+        <p>Loading ...</p> <!-- ✅ Loading appears immediately -->
+    </div>
+    <div class="movies_view" v-if="filteredMovies.length">
+        <div class="movie-card" v-for="movie in filteredMovies" :key="movie.id">
             <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
             <p>
                 {{ movie.Title }}
@@ -17,35 +20,33 @@
 
         </div>
     </div>
+    <p v-else-if="!loading && !filteredMovies.length && !dataFetch">No results found.</p>
 </template>
 
 <script>
-import axios from 'axios';
-import { deleteMovie, addMovie } from '../utils/helpers';
+
+import { deleteMovie, addMovie, fetchMovies } from '../utils/helpers';
 
 export default {
     name: 'HomePage',
     data() {
         return {
             movies: [],
-            favorites: []
+            filteredMovies: [],
+            favorites: [],
+            loading: true,
+            dataFetch: true
+        }
+    },
+    watch: {
+        '$route.query.q': { // listen to changes in the $route.query.q ->http://localhost:8080/?q=x
+            immediate: true,  //  Runs when the component loads
+            handler(newQuery) {
+                this.filterMovies(newQuery || ''); // handler trigger the function with the new quary parameter 
+            }
         }
     },
     methods: {
-        async fetchMovies() {
-            try {
-                let userToken = localStorage.getItem('token')
-                let response = await axios.get('https://movie-api-lina-834bc70d6952.herokuapp.com/movies', {
-                    headers: { Authorization: `Bearer ${userToken}` }
-                })
-                if (response.status === 200) {
-                    this.movies = response.data;  // Axios handles JSON parsing automatically
-                }
-            } catch (error) {
-                console.error('Error fetching movies:', error.response ? error.response.data : error.message);
-                alert('An error occurred while fetching the movies.');
-            }
-        },
         async handleAddMovie(movieId) {
             await addMovie(movieId);
 
@@ -62,10 +63,37 @@ export default {
 
         isFavorite(movieId) {
             return this.favorites.includes(movieId);
+        },
+
+        async fetchMovies() {
+            this.dataFetch = true;
+            const moviesData = await fetchMovies();
+            if (moviesData) {
+                this.movies = moviesData;
+                this.filteredMovies = moviesData;  // Show all movies initially
+            }
+            this.dataFetch = false;
+        },
+
+        filterMovies(query) {
+            this.loading = true;
+            setTimeout(() => {
+                if (!query) {
+                    this.filteredMovies = this.movies;
+                } else {
+                    const lowerCaseQuery = query.toLowerCase();
+                    this.filteredMovies = this.movies.filter(movie =>
+                        movie.Title.toLowerCase().includes(lowerCaseQuery)
+                    );
+                }
+                this.loading = false; // ✅ Stop loading after filtering
+            }, 300);
         }
     },
-    mounted() {
-        this.fetchMovies();
+    async mounted() {
+        await this.fetchMovies();  // calls api call to get all movies on load 
+        this.filterMovies(this.$route.query.q || '');
+
         let userData = JSON.parse(localStorage.getItem('user')); // need to be parsed to object that can access FavoriteMovies
         // when no user data found in localstorage, redirect to homepage
         if (!userData) {
@@ -76,6 +104,7 @@ export default {
         }
     }
 }
+
 </script>
 <style>
 .movies_view {
@@ -92,7 +121,5 @@ export default {
 
 .movie-card__img {
     height: 200px;
-
-
 }
 </style>

@@ -8,18 +8,24 @@
             <router-link to="/">Home</router-link>
             <router-link to="#">Genres</router-link>
             <router-link to="fav-movies">My List</router-link>
-            <router-link to="#">Search for Movie</router-link>
+            <MovieSearch />
 
             <router-link to="/profile">My Profile</router-link>
             <a v-on:click="logout" ref="">Log Out</a>
         </template>
+
     </div>
 </template>
 <script>
+import MovieSearch from './MovieSearch.vue';
 export default {
     name: 'AppNavigation',
+    components: {
+        MovieSearch
+    },
     data() {
         return {
+            // returns true when user logged in
             isUserLoggedIn: !!localStorage.getItem('user')
         }
     },

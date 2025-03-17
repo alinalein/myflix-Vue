@@ -1,11 +1,10 @@
 <template>
-
     <form @submit.prevent="updateProfile" class="signUp">
         <label for="username">Username</label>
         <input type="text" v-model="username" placeholder="Username" required />
         <label for="username">E-Mail</label>
         <input type="text" v-model="email" placeholder="E-Mail" required />
-        <label for="Cirthday">E-Mail</label>
+        <label for="Birthday">Birthday</label>
         <input placeholder="Birthday" type="date" v-model="birthday" required />
         <button type="submit">Update Profile</button>
     </form>
@@ -36,8 +35,6 @@ export default {
             try {
                 const user = JSON.parse(localStorage.getItem('user'))
                 const token = localStorage.getItem('token')
-                console.log('Token:', token);
-                console.log('username', user.Username)
                 let response = await axios.put(`https://movie-api-lina-834bc70d6952.herokuapp.com/users/update/${user.Username}`,
                     {
                         Username: this.username,
@@ -48,6 +45,7 @@ export default {
                     headers: { Authorization: `Bearer ${token}` }
                 })
                 if (response.status === 200) {
+                    // the response date is not wrapped in updatedUser as it is the case for add movie return
                     const updatedUser = { ...user, ...response.data };
                     localStorage.setItem('user', JSON.stringify(updatedUser));
 

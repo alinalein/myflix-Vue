@@ -52,3 +52,18 @@ export const deleteMovie = async (id) => {
         alert('Movie could not be deleted');
     }
 }
+
+export const fetchMovies = async () => {
+    try {
+        let userToken = localStorage.getItem('token')
+        let response = await axios.get('https://movie-api-lina-834bc70d6952.herokuapp.com/movies', {
+            headers: { Authorization: `Bearer ${userToken}` }
+        })
+        if (response.status === 200) {
+            return response.data;  // Axios handles JSON parsing automatically
+        }
+    } catch (error) {
+        console.error('Error fetching movies:', error.response ? error.response.data : error.message);
+        alert('An error occurred while fetching the movies.');
+    }
+}
