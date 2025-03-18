@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <input class="search" v-model="searchQuery" @keyup="searchMovies" placeholder="Search for movies..." />
+    <div class="search">
+        <input v-model="searchQuery" @keyup="searchMovies" placeholder="Search for movies..." />
     </div>
 </template>
 <script>
@@ -44,9 +44,10 @@ export default {
 }
 </script>
 <style>
-.search {
-    margin-top: 7px;
+.search input {
     border-radius: 5px;
-    padding: 2px;
+    padding: 4px;
+    background-color: rgb(30, 30, 30);
+    color: white;
 }
 </style>

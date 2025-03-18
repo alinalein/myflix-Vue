@@ -1,19 +1,24 @@
 <template>
     <div class="background">
-        <h1 class="title_sign_up">Sign Up </h1>
+        <div>
+            <h1>Signup</h1>
 
-        <form @submit.prevent="signup" class="signUp">
-            <input type="text" v-model="username" placeholder="Enter Username" required />
-            <input type="email" v-model="email" placeholder="Enter Email" required />
-            <input type="date" v-model="birthday" placeholder="Enter Birthday" required />
-            <input type="password" v-model="password" placeholder="Enter Password" required />
-            <button type="submit">Sign Up</button>
-        </form>
-        <p>
-            <router-link class="link_sign-up" to="/log-in">Log In</router-link>
-        </p>
+            <form @submit.prevent="signup" class="signUp">
+                <label></label>
+                <label>Username, please choose at least 5 characters:</label>
+                <input type="text" v-model="username" placeholder="Enter Username" required />
+                <label>Email, please choose at least 8 characters:</label>
+                <input type="email" v-model="email" placeholder="Enter Email" required />
+                <label>Birthday:</label>
+                <input type="date" v-model="birthday" placeholder="Enter Birthday" required />
+                <label>Password:</label>
+                <input type="password" v-model="password" placeholder="Enter Password" required />
+                <button type="submit">Signup</button>
+            </form>
+            <p>Have an account? <router-link class="redirect_link" to="/log-in">Login</router-link>
+            </p>
+        </div>
     </div>
-
 </template>
 <script>
 import axios from 'axios';
@@ -68,51 +73,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.background {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-image: url('../assets/final.webp');
-    height: 100vh;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.signUp input,
-.logIn input {
-    width: 300px;
-    height: 30px;
-    padding-left: 20px;
-    display: block;
-    margin-bottom: 10px;
-    border: 2px solid aqua;
-    border-radius: 5px;
-}
-
-.signUp button,
-.logIn button {
-    width: 200px;
-    height: 30px;
-    background-color: aqua;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-}
-
-.title_sign_up,
-.title_log_in {
-    padding-bottom: 100px;
-    color: white;
-}
-
-.link_sign-up,
-.link_log-in {
-    color: red;
-    margin: 100px;
-}
-</style>

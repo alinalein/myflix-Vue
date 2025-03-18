@@ -108,18 +108,24 @@ export default {
 </script>
 <style>
 .movies_view {
+    background-color: rgb(50, 49, 49);
+    width: 100%;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    place-items: center;
 }
 
 .movie-card {
-    width: 200px;
-    border: 1px solid gray;
-    margin: 10px;
+    width: 100%;
+    border-radius: 5px;
+    background-color: black;
+    box-shadow: 4px 4px 15px rgba(212, 209, 209, 0.2);
+    padding: 10px;
+    width: 20vw;
+    border: 2px solid red;
 }
 
 .movie-card__img {
-    height: 200px;
+    height: 300px;
 }
 </style>

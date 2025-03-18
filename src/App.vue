@@ -27,4 +27,90 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+
+.background {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url('../src/assets/final.webp');
+  height: 92vh;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.background div {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(3, 3, 3, 0.562);
+  border-radius: 4px;
+  padding: 30px;
+}
+
+.background h1 {
+  padding-bottom: 5vh;
+  color: white;
+}
+
+.background p {
+  padding-top: 5%;
+  color: gray;
+  align-self: flex-start;
+}
+
+.signUp,
+.logIn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.signUp label,
+.logIn label {
+  color: rgba(154, 151, 151, 0.943);
+  padding: 2px;
+}
+
+.signUp input,
+.logIn input {
+  width: 100%;
+  color: gray;
+  line-height: 1;
+  font-size: 0.95rem;
+  padding: 1.2rem 1rem 0.5rem;
+  display: block;
+  margin-bottom: 15px;
+  background-color: rgba(59, 58, 58, 0.562);
+  border-radius: 8px;
+}
+
+.signUp button,
+.logIn button {
+  width: 100%;
+  color: white;
+  height: 2.5rem;
+  background-color: rgb(229, 9, 20);
+  border-radius: 5px;
+  border: none;
+  font-weight: 500;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition-duration: 250ms;
+  transition-property: background-color;
+}
+
+.signUp button:hover,
+.logIn button:hover {
+  background-color: rgba(229, 9, 20, 0.731);
+}
+
+.redirect_link {
+  text-decoration: none;
+  color: white;
+  font-weight: 750;
+}
 </style>

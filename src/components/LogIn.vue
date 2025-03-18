@@ -1,15 +1,19 @@
 <template>
     <div class="background">
-        <h1 class="title_log_in">Log In</h1>
+        <div>
+            <h1>Login</h1>
 
-        <form @submit.prevent="login" class="logIn">
-            <input type="text" v-model="username" placeholder="Username" required />
-            <input type="password" v-model="password" placeholder="Password" required />
-            <button type="submit">Log In</button>
-        </form>
-        <p>
-            <router-link class="link_log-in" to="/sign-up">Sign Up</router-link>
-        </p>
+            <form @submit.prevent="login" class="logIn">
+                <label>Username:</label>
+                <input type="text" v-model="username" placeholder="Username" required />
+                <label>Password:</label>
+                <input type="password" v-model="password" placeholder="Password" required />
+                <button type="submit">Login</button>
+            </form>
+            <p>New to myFlix?
+                <router-link class="redirect_link" to="/sign-up">Signup</router-link>
+            </p>
+        </div>
     </div>
 </template>
 
@@ -59,5 +63,3 @@ export default {
     }
 }
 </script>
-
-<style></style>

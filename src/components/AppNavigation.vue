@@ -1,8 +1,9 @@
 <template>
     <div class="nav">
+        <p>myFlix</p>
         <template v-if="!isUserLoggedIn">
-            <router-link to="log-in">Log In</router-link>
-            <router-link to="sign-up">Sign Up</router-link>
+            <router-link to="log-in">Login</router-link>
+            <router-link to="sign-up">Signup</router-link>
         </template>
         <template v-else>
             <router-link to="/">Home</router-link>
@@ -67,35 +68,47 @@ export default {
 </script>
 <style>
 .nav {
-    background-color: red;
+    background-color: black;
     display: flex;
+    align-items: center;
+    height: 8vh;
+}
+
+.nav p {
+    color: rgb(229, 9, 20);
+    font-size: 2rem;
+    padding: 10px;
 }
 
 .nav a,
 .nav router-link {
     cursor: pointer;
-    color: black;
+    color: gray;
+    font-size: 1.1rem;
     padding: 10px 20px;
-}
-
-/* pushes all after 5th child to left */
-.nav a:nth-child(5) {
-    color: blue;
-    margin-left: auto;
+    text-decoration: none;
+    transition-duration: 250ms;
+    transition-property: color;
 }
 
 .nav a:hover {
-    background: yellow;
+    color: white;
+}
+
+/* pushes all after 5th child to left */
+.nav a:nth-child(6) {
+    margin-left: auto;
 }
 
 .dropdown {
+    color: gray;
     position: relative;
     display: inline-block;
     cursor: pointer;
 }
 
 .dropdown-button {
-    color: #fff;
+    color: gray;
     padding: 10px 15px;
     background-color: transparent;
     border: none;
@@ -105,10 +118,10 @@ export default {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #2a2a2a;
+    background-color: black;
     min-width: 120px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
+    border-radius: 5px;
     z-index: 1;
 }
 

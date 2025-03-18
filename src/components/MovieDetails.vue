@@ -21,7 +21,7 @@ export default {
     }
 }
 </script>
-<style scoped>
+<style>
 .movie-details {
     position: fixed;
     top: 50%;
