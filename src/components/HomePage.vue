@@ -94,17 +94,19 @@ export default {
         },
     },
     async mounted() {
-        await this.fetchMovies();  // calls api call to get all movies on load 
-        this.filterMovies(this.$route.query.q || '');
+        let userData = JSON.parse(localStorage.getItem('user'));
+        let token = localStorage.getItem('token');
 
-        let userData = JSON.parse(localStorage.getItem('user')); // need to be parsed to object that can access FavoriteMovies
-        // when no user data found in localstorage, redirect to homepage
-        if (!userData) {
-            this.$router.push({ name: 'LogIn' });
+        // Correct logic ensuring both checks are properly handled
+        if ((!userData || userData === "null") && !token) {
+            await this.$router.push({ name: 'LogIn' });
+            return;  // Prevent further code execution
         }
-        else {
-            this.favorites = userData.FavoriteMovies || [];  // load favorites from localStorage
-        }
+
+        // Fetch movies only if conditions are met
+        await this.fetchMovies();
+        this.filterMovies(this.$route.query.q || '');
+        this.favorites = userData.FavoriteMovies || [];
     }
 }
 
