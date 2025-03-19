@@ -2,9 +2,9 @@ import HomePage from "./components/HomePage.vue";
 import LogIn from "./components/LogIn.vue";
 import UserProfile from "./components/UserProfile.vue";
 import FavMovies from "./components/FavMovies.vue";
-import SignUp from "./components/signUp.vue";
 import GenrePage from "./components/GenrePage.vue";
-import { createRouter, createWebHistory } from 'vue-router';
+import SignUp from "./components/SignUp.vue"
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 
 const routes = [
@@ -42,7 +42,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes
 });
 
