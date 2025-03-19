@@ -3,7 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   // Ensures correct paths for production builds
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/myflix-vue/'
+    ? '/myflix-Vue/'
     : '/',
   // Custom Webpack configuration
   configureWebpack: {
