@@ -1,17 +1,24 @@
 <template>
     <div class="movies_view">
-        <div class="movie-card" v-for="movie in favMovies" :key="movie.id">
-            <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
-            <p>
-                {{ movie.Title }}
-            </p>
-
-            <button @click="showMovieDetails(movie)">
-                Show Movie Details
-            </button>
-            <button @click="handleDelete(movie._id)">Remove From Favorites</button>
+        <h1 class="fav_title">My Favorite Movies</h1>
+        <div class="movies_div">
+            <div class="movie-card" v-for="movie in favMovies" :key="movie.id">
+                <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
+                <p>
+                    {{ movie.Title }}
+                </p>
+                <div class="movie_buttons_div">
+                    <button class="show_button" @click="showMovieDetails(movie)">
+                        Show Details
+                    </button>
+                    <button class="fav_button" @click="handleDelete(movie._id)">
+                        <i class="fas fa-heart" style="color: rgb(229, 9, 20); "></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+
     <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
 </template>
 

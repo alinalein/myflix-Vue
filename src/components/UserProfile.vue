@@ -1,15 +1,20 @@
 <template>
-    <form @submit.prevent="updateProfile" class="signUp">
-        <label for="username">Username</label>
-        <input type="text" v-model="username" placeholder="Username" required />
-        <label for="username">E-Mail</label>
-        <input type="text" v-model="email" placeholder="E-Mail" required />
-        <label for="Birthday">Birthday</label>
-        <input placeholder="Birthday" type="date" v-model="birthday" required />
-        <button type="submit">Update Profile</button>
-    </form>
-
-    <button type="button" @click="deleteProfile">Delete Profile</button>
+    <div class="update_div">
+        <div class="update_form">
+            <h1>My Profile Details</h1>
+            <form @submit.prevent="updateProfile" class="signUp">
+                <label for="username">Username</label>
+                <input type="text" v-model="username" placeholder="Username" required />
+                <label for="username">E-Mail</label>
+                <input type="text" v-model="email" placeholder="E-Mail" required />
+                <label for="Birthday">Birthday</label>
+                <input placeholder="Birthday" type="date" v-model="birthday" required />
+                <button type="submit">Update Profile</button>
+            </form>
+            <button type="button" class="delete_profile" @click="deleteProfile" style="margin-top: 20px;">Delete
+                Profile</button>
+        </div>
+    </div>
 </template>
 <script>
 import axios from 'axios'
@@ -112,5 +117,23 @@ export default {
         }
     }
 }
-
 </script>
+<style>
+.delete_profile {
+    width: 100%;
+    color: rgb(194, 194, 194);
+    height: 1.8rem;
+    background-color: black;
+    border-radius: 5px;
+    border: none;
+    font-weight: 500;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition-duration: 250ms;
+    transition-property: background-color;
+}
+
+.delete_profile:hover {
+    background-color: rgb(97, 2, 2);
+}
+</style>

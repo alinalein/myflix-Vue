@@ -33,6 +33,16 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   background-image: url('../src/assets/final.webp');
+}
+
+.update_div {
+  height: 100%;
+  width: 100%;
+  background-color: rgb(50, 49, 49);
+}
+
+.update_div,
+.background {
   height: 92vh;
   padding: 10px;
   display: flex;
@@ -41,7 +51,12 @@ export default {
   justify-content: center;
 }
 
-.background div {
+.update_form {
+  box-shadow: 6px 6px 17px rgba(212, 209, 209, 0.2);
+}
+
+.background div,
+.update_form {
   width: 35%;
   display: flex;
   flex-direction: column;
@@ -50,7 +65,8 @@ export default {
   padding: 30px;
 }
 
-.background h1 {
+.background h1,
+.update_form h1 {
   padding-bottom: 5vh;
   color: white;
 }
@@ -78,14 +94,24 @@ export default {
 .signUp input,
 .logIn input {
   width: 100%;
-  color: gray;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1;
   font-size: 0.95rem;
   padding: 1.2rem 1rem 0.5rem;
   display: block;
   margin-bottom: 15px;
-  background-color: rgba(59, 58, 58, 0.562);
+  background-color: rgba(75, 73, 73, 0.8);
   border-radius: 8px;
+}
+
+.logIn input::placeholder,
+.signUp input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+input[type="date"] {
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 0.7;
 }
 
 .signUp button,

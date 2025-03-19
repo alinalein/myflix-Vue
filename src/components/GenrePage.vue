@@ -1,27 +1,29 @@
 <template>
-    <div>
-        <h1>{{ genre }} Movies</h1>
-
-        <div v-if="filteredMovies.length" class="movies_view">
+    <div class="movies_view">
+        <h1 class="genre_title">{{ genre }} Movies</h1>
+        <div v-if="filteredMovies.length" class="movies_div">
             <div class="movie-card" v-for="movie in filteredMovies" :key="movie.id">
                 <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
                 <p>{{ movie.Title }}</p>
-
-                <button @click="showMovieDetails(movie)">
-                    Show Movie Details
-                </button>
-                <button v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
-                    Remove from Favorites
-                </button>
-                <button v-if="!isFavorite(movie._id)" @click="handleAddMovie(movie._id)">
-                    Add to Favorites
-                </button>
+                <div class="movie_buttons_div">
+                    <button class="show_button" @click="showMovieDetails(movie)">
+                        Show Details
+                    </button>
+                    <button class="fav_button" v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
+                        <i class="fas fa-heart" style="color: rgb(229, 9, 20); "></i>
+                    </button>
+                    <button class="fav_button" v-if="!isFavorite(movie._id)" @click="handleAddMovie(movie._id)">
+                        <i class="far fa-heart" style="color: rgb(229, 9, 20);"></i>
+                    </button>
+                </div>
             </div>
         </div>
-
-        <p v-else>No movies found for this genre.</p>
-        <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
+        <div v-else class="movies_view">
+            <p>No movies found for this genre.</p>
+        </div>
     </div>
+
+    <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
 </template>
 
 <script>
@@ -87,3 +89,11 @@ export default {
     }
 }
 </script>
+<style>
+.genre_title,
+.fav_title {
+    position: relative;
+    color: rgb(171, 171, 171);
+    padding: 20px 0;
+}
+</style>

@@ -72,18 +72,20 @@ export default {
     display: flex;
     align-items: center;
     height: 8vh;
+    width: 100%;
 }
 
 .nav p {
-    color: rgb(229, 9, 20);
+    color: black;
     font-size: 2rem;
     padding: 10px;
+    animation: glow 3s ease-in-out infinite;
 }
 
 .nav a,
 .nav router-link {
     cursor: pointer;
-    color: gray;
+    color: rgb(171, 171, 171);
     font-size: 1.1rem;
     padding: 10px 20px;
     text-decoration: none;
@@ -101,14 +103,14 @@ export default {
 }
 
 .dropdown {
-    color: gray;
+    color: rgb(171, 171, 171);
     position: relative;
     display: inline-block;
     cursor: pointer;
 }
 
 .dropdown-button {
-    color: gray;
+    color: rgb(171, 171, 171);
     padding: 10px 15px;
     background-color: transparent;
     border: none;
@@ -127,11 +129,10 @@ export default {
 
 .dropdown:hover .dropdown-content {
     display: block;
-    /* ✅ Show dropdown on hover */
 }
 
 .dropdown-content a {
-    color: #fff;
+    color: rgb(171, 171, 171);
     padding: 10px 15px;
     text-decoration: none;
     display: block;
@@ -139,5 +140,78 @@ export default {
 
 .dropdown-content a:hover {
     background-color: #444;
+}
+
+@keyframes glow {
+
+    0%,
+    100% {
+        text-shadow: -3px -3px 8px rgba(0, 0, 0, 0.2),
+            3px -3px 8px rgba(0, 0, 0, 0.2),
+            -3px 3px 8px rgba(0, 0, 0, 0.2),
+            3px 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    50% {
+        text-shadow: -3px -3px 8px rgba(255, 0, 0, 0.6),
+            3px -3px 8px rgba(255, 0, 0, 0.6),
+            -3px 3px 8px rgba(255, 0, 0, 0.6),
+            3px 3px 8px rgba(255, 0, 0, 0.6);
+    }
+}
+
+
+
+@media (max-width: 768px) {
+    .nav {
+        flex-direction: column;
+        height: auto;
+        text-align: center;
+    }
+
+    .nav p {
+        font-size: 1.5rem;
+        /* Smaller logo text */
+    }
+
+    .nav a,
+    .dropdown-button {
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .dropdown-content {
+        position: relative;
+        width: 100%;
+        text-align: center;
+    }
+
+    .dropdown-content a {
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .hamburger-menu {
+        display: block;
+        background-color: rgb(229, 9, 20);
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 10px 20px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links {
+        display: none;
+        /* Hidden by default */
+        flex-direction: column;
+    }
+
+    .nav-links.active {
+        display: flex;
+        /* Show when active */
+    }
 }
 </style>

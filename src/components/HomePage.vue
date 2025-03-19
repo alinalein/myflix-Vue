@@ -1,23 +1,26 @@
 <template>
-    <div class="movies_view" v-if="filteredMovies.length">
+    <div class="movies_div movies_view" v-if="filteredMovies.length">
         <div class="movie-card" v-for="movie in filteredMovies" :key="movie.id">
             <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
             <p>
                 {{ movie.Title }}
             </p>
-            <button @click="showMovieDetails(movie)">
-                Show Movie Details
-            </button>
-            <button v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
-                Remove from Favorites
-            </button>
-            <button v-if="!isFavorite(movie._id)" @click="handleAddMovie(movie._id)">
-                Add to Favorites
-            </button>
-
+            <div class="movie_buttons_div">
+                <button class="show_button" @click="showMovieDetails(movie)">
+                    Show Details
+                </button>
+                <button class="fav_button" v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
+                    <i class="fas fa-heart" style="color: rgb(229, 9, 20); "></i>
+                </button>
+                <button class="fav_button" v-if="!isFavorite(movie._id)" @click="handleAddMovie(movie._id)">
+                    <i class="far fa-heart" style="color: rgb(229, 9, 20);"></i>
+                </button>
+            </div>
         </div>
     </div>
-    <p v-else-if="!filteredMovies.length && !dataFetch">No results found.</p>
+    <div v-else-if="!filteredMovies.length && !dataFetch" class="movies_view">
+        <p style="color: white">No results found.</p>
+    </div>
     <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
 </template>
 
@@ -108,24 +111,86 @@ export default {
 </script>
 <style>
 .movies_view {
+    min-height: 92vh;
     background-color: rgb(50, 49, 49);
+}
+
+.movies_div {
     width: 100%;
+    padding: 0 250px;
+    gap: 10px;
+    height: auto;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     place-items: center;
 }
 
 .movie-card {
-    width: 100%;
+    position: relative;
+    overflow: hidden;
+    height: 45vh;
+    min-width: 18vw;
     border-radius: 5px;
     background-color: black;
     box-shadow: 4px 4px 15px rgba(212, 209, 209, 0.2);
     padding: 10px;
-    width: 20vw;
-    border: 2px solid red;
+}
+
+.movie_buttons_div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgb(0, 0, 0), rgba(229, 9, 20, 0.413));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.movie-card:hover .movie_buttons_div {
+    opacity: 0.9;
+}
+
+.show_button {
+    color: rgb(211, 211, 211);
+    border-radius: 4px;
+    font-size: 1rem;
+    padding: 5px;
+    background-color: rgb(84, 80, 80);
+    border: 1px solid gray;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.fav_button {
+    background-color: transparent;
+    border: none;
+    font-size: 4rem;
+    padding: 0 10px;
+}
+
+.movie_buttons_div button {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.movie_buttons_div button:hover {
+    transform: scale(1.2);
+}
+
+.movie-card p {
+    color: rgb(211, 209, 209);
+    font-size: x-large;
+    padding-bottom: 10px;
 }
 
 .movie-card__img {
-    height: 300px;
+    height: 40vh;
+    padding-bottom: 10px;
+    border-radius: 2px;
 }
 </style>

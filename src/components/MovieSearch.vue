@@ -47,7 +47,11 @@ export default {
 .search input {
     border-radius: 5px;
     padding: 4px;
-    background-color: rgb(30, 30, 30);
+    background-color: rgb(75, 73, 73);
     color: white;
+}
+
+.search input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
 }
 </style>
