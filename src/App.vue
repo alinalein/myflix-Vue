@@ -139,4 +139,20 @@ input[type="date"] {
   color: white;
   font-weight: 750;
 }
+
+@media (max-width: 1180px) {
+
+  .background div,
+  .update_form {
+    width: 60%
+  }
+}
+
+@media (max-width: 720px) {
+
+  .background div,
+  .update_form {
+    width: 95%
+  }
+}
 </style>

@@ -1,27 +1,32 @@
 <template>
     <div class="nav">
         <p>myFlix</p>
-        <template v-if="!isUserLoggedIn">
-            <router-link to="log-in">Login</router-link>
-            <router-link to="sign-up">Signup</router-link>
-        </template>
-        <template v-else>
-            <router-link to="/">Home</router-link>
-            <div class="dropdown">
-                <div class="dropdown-button">Genres ▼</div>
-                <div class="dropdown-content">
-                    <a v-for="genre in genres" :key="genre" @click="navigateToGenre(genre)">
-                        {{ genre }}
-                    </a>
+        <button class="hamburger-menu" @click="toggleMenu">
+            ☰
+        </button>
+        <!-- Navigation Links (Visible by default, Hidden only on small screens) -->
+        <div :class="['nav-links', { active: isMenuOpen }]">
+            <template v-if="!isUserLoggedIn">
+                <router-link to="log-in">Login</router-link>
+                <router-link to="sign-up">Signup</router-link>
+            </template>
+            <template v-else>
+                <router-link to="/">Home</router-link>
+                <div class="dropdown">
+                    <div class="dropdown-button">Genres ▼</div>
+                    <div class="dropdown-content">
+                        <a v-for="genre in genres" :key="genre" @click="navigateToGenre(genre)">
+                            {{ genre }}
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <router-link to="/fav-movies">My List</router-link>
-            <MovieSearch />
-            <router-link to="/profile">My Profile</router-link>
-            <a v-on:click="logout" ref="">Log Out</a>
-        </template>
-
+                <router-link to="/fav-movies">My List</router-link>
+                <MovieSearch />
+                <router-link to="/profile">My Profile</router-link>
+                <a v-on:click="logout" ref="">Log Out</a>
+            </template>
+        </div>
     </div>
 </template>
 <script>
@@ -36,6 +41,7 @@ export default {
             // returns true when user logged in
             isUserLoggedIn: !!localStorage.getItem('user'),
             selectedGenre: '',
+            isMenuOpen: false,
             genres: ['Action', 'Biography', 'Crime', 'Drama', 'Sci-Fi']
         }
     },
@@ -50,18 +56,23 @@ export default {
         }
     },
     methods: {
+        toggleMenu() {
+            this.isMenuOpen = !this.isMenuOpen;
+        },
         checkUserStatus() {
             let user = localStorage.getItem('user')
             this.isUserLoggedIn = !!user; //!! check here if the value of user true (loogedin) OR false (not logged in)
         },
         navigateToGenre(selectedGenre) {
             this.$router.push({ name: 'GenrePage', params: { genre: selectedGenre } });
+            this.isMenuOpen = false;
         },
         logout() {
             localStorage.removeItem('user');
             localStorage.removeItem('token');
             this.isUserLoggedIn = false;
             this.$router.push({ name: 'LogIn' })
+            this.isMenuOpen = false;
         }
     }
 }
@@ -97,8 +108,13 @@ export default {
     color: white;
 }
 
+.nav-links {
+    width: 100%;
+    display: flex;
+}
+
 /* pushes all after 5th child to left */
-.nav a:nth-child(6) {
+.nav a:nth-child(5) {
     margin-left: auto;
 }
 
@@ -142,6 +158,10 @@ export default {
     background-color: #444;
 }
 
+.hamburger-menu {
+    display: none;
+}
+
 @keyframes glow {
 
     0%,
@@ -160,35 +180,11 @@ export default {
     }
 }
 
-
-
-@media (max-width: 768px) {
+@media (max-width: 850px) {
     .nav {
         flex-direction: column;
         height: auto;
         text-align: center;
-    }
-
-    .nav p {
-        font-size: 1.5rem;
-        /* Smaller logo text */
-    }
-
-    .nav a,
-    .dropdown-button {
-        width: 100%;
-        padding: 10px 0;
-    }
-
-    .dropdown-content {
-        position: relative;
-        width: 100%;
-        text-align: center;
-    }
-
-    .dropdown-content a {
-        width: 100%;
-        padding: 10px 0;
     }
 
     .hamburger-menu {
@@ -205,13 +201,30 @@ export default {
 
     .nav-links {
         display: none;
-        /* Hidden by default */
+        /* Links hidden by default on small screens */
         flex-direction: column;
+        width: 100%;
     }
 
     .nav-links.active {
         display: flex;
-        /* Show when active */
+        /* Links shown when hamburger menu clicked */
+    }
+
+    .nav a {
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .dropdown-content {
+        position: relative;
+        width: 100%;
+        text-align: center;
+    }
+
+    .dropdown-content a {
+        width: 100%;
+        padding: 10px 0;
     }
 }
 </style>

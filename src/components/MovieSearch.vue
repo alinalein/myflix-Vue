@@ -44,6 +44,12 @@ export default {
 }
 </script>
 <style>
+.search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .search input {
     border-radius: 5px;
     padding: 4px;

@@ -18,7 +18,7 @@
             </div>
         </div>
     </div>
-    <div v-else-if="!filteredMovies.length && !dataFetch" class="movies_view">
+    <div v-else-if="!filteredMovies.length && !dataFetch" class="movies_view no_result">
         <p style="color: white">No results found.</p>
     </div>
     <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
@@ -115,20 +115,27 @@ export default {
     background-color: rgb(50, 49, 49);
 }
 
+.no_result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+}
+
 .movies_div {
     width: 100%;
-    padding: 0 250px;
+    padding: 0 200px;
     gap: 10px;
     height: auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     place-items: center;
 }
 
 .movie-card {
     position: relative;
     overflow: hidden;
-    height: 45vh;
+    height: 47vh;
     min-width: 18vw;
     border-radius: 5px;
     background-color: black;
@@ -192,5 +199,30 @@ export default {
     height: 40vh;
     padding-bottom: 10px;
     border-radius: 2px;
+}
+
+@media (max-width: 1820px) {
+    .movies_div {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 0 50px;
+    }
+
+    .movie-card {
+        min-width: 330px;
+    }
+}
+
+@media (max-width: 1150px) {
+    .movies_div {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 700px) {
+    .movies_div {
+        grid-template-columns: repeat(1, 1fr);
+        padding: 0 30px;
+    }
 }
 </style>
