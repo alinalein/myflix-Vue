@@ -20,56 +20,58 @@
         </div>
     </div>
 </template>
-<script>
+
+<script lang="ts" setup>
 import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { getStoredUser, getToken } from '@/utils/helpers'
+import type { SignupResponse } from '@/types/index';
 
-export default {
-    name: 'SignUp',
-    data() {
-        return {
-            username: '',
-            email: '',
-            birthday: '',
-            password: ''
+const username = ref<string>('')
+const birthday = ref<string>('')
+const email = ref<string>('')
+const password = ref<string>('')
+const router = useRouter()
+
+const signup = async (): Promise<void> => {
+    try {
+        const response = await axios.post<SignupResponse>('https://movie-api-lina-834bc70d6952.herokuapp.com/users/signup', {
+            Username: username.value,
+            Email: email.value,
+            Birthday: birthday.value,
+            Password: password.value
+        },
+            {
+                headers: { 'Content-Type': 'application/json' }
+            })
+
+        if (response.status === 201) {
+            router.push({ name: 'LogIn' })
+            alert('Successfully created the user profile')
         }
-    },
-    methods: {
-        async signup() {
-            try {
-                let response = await axios.post('https://movie-api-lina-834bc70d6952.herokuapp.com/users/signup', {
-                    Username: this.username,
-                    Email: this.email,
-                    Birthday: this.birthday,
-                    Password: this.password
-                },
-                    {
-                        headers: { 'Content-Type': 'application/json' }
-                    })
-
-                if (response.status === 201) {
-                    this.$router.push({ name: 'LogIn' })
-                    alert('Successfully created the user profile')
-                }
+    }
+    catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response) {
+            if (error.response.status === 400) {
+                alert('Could not sign up, please fill out all fields accordingly');
+            } else if (error.response.status === 409) {
+                alert('username already exist, please pick another one')
             }
-            catch (error) {
-                if (error.response && error.response.status === 400) {
-                    alert('could not sign up, please fill out all fields accordingly ')
-                } else if (error.status === 409) {
-                    alert('username already exist, please pick another one')
-                } else {
-                    alert('un unexpected error happened')
-                }
-
+            else {
+                alert('Unexpected error');
             }
-        }
-    },
-    mounted() {
-        let userData = localStorage.getItem('user')
-        let token = localStorage.getItem('token')
-        // when user data found in localstorage, redirect to homepage
-        if (userData && token) {
-            this.$router.push({ name: 'HomePage' });
+        } else {
+            alert('Unexpected error');
         }
     }
 }
+onMounted(async (): Promise<void> => {
+    const userData = getStoredUser()
+    const token = getToken()
+    // when user data found in localstorage, redirect to homepage
+    if (userData && token) {
+        router.push({ name: 'HomePage' });
+    }
+})
 </script>

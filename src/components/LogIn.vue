@@ -17,49 +17,54 @@
     </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { getStoredUser, getToken } from '@/utils/helpers'
+import type { LoginResponse } from '@/types/index';
 
-export default {
-    name: 'LogIn',
-    data() {
-        return {
-            username: '',
-            password: ''
+const username = ref<string>('')
+const password = ref<string>('')
+const router = useRouter()
+
+const login = async (): Promise<void> => {
+    try {
+        const response = await axios.post<LoginResponse>('https://movie-api-lina-834bc70d6952.herokuapp.com/users/login',
+            {
+                Username: username.value,
+                Password: password.value
+            }, {
+            headers: { 'Content-Type': 'application/json' }
+
+        })
+        if (response.status === 201) {
+            localStorage.setItem('user', JSON.stringify(response.data.user))
+            localStorage.setItem('token', response.data.token)
+            router.push({ name: 'HomePage' })
         }
-    },
-    methods: {
-        async login() {
-            try {
-                let response = await axios.post('https://movie-api-lina-834bc70d6952.herokuapp.com/users/login',
-                    {
-                        Username: this.username,
-                        Password: this.password
-                    }, {
-                    headers: { 'Content-Type': 'application/json' }
-
-                })
-                if (response.status === 201) {
-                    localStorage.setItem('user', JSON.stringify(response.data.user))
-                    localStorage.setItem('token', response.data.token)
-                    this.$router.push({ name: 'HomePage' })
-                }
-            } catch (error) {
-                if (error.response && error.response.status === 400) {
-                    alert('could not sign in, please check your login credentials')
-                } else {
-                    alert('Unexpected error')
-                }
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response) {
+            if (error.response.status === 400) {
+                alert('Could not sign in, please check your login credentials');
+            } else {
+                console.error('Login error:', error.response?.data || error.message);
+                alert('Unexpected error');
             }
-        }
-    },
-    mounted() {
-        let userData = localStorage.getItem('user')
-        let token = localStorage.getItem('token')
-        // when user data found in localstorage, redirect to homepage
-        if (userData && token) {
-            this.$router.push({ name: 'HomePage' });
+        } else {
+            console.error('Unknown login error:', error);
+            alert('Unexpected error');
         }
     }
 }
+
+onMounted(async (): Promise<void> => {
+    const userData = getStoredUser()
+    const token = getToken()
+    // when user data found in localstorage, redirect to homepage
+    if (userData && token) {
+        router.push({ name: 'HomePage' });
+    }
+})
+
 </script>

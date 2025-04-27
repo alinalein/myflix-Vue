@@ -1,6 +1,6 @@
 <template>
     <div class="movies_div movies_view" v-if="filteredMovies.length">
-        <div class="movie-card" v-for="movie in filteredMovies" :key="movie.id">
+        <div class="movie-card" v-for="movie in filteredMovies" :key="movie._id">
             <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
             <p>
                 {{ movie.Title }}
@@ -24,92 +24,112 @@
     <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
 </template>
 
-<script>
+<script lang="ts" setup>
+import { ref, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router';
 import MovieDetails from './MovieDetails.vue';
-import { deleteMovie, addMovie, fetchMovies } from '../utils/helpers';
+import { deleteMovie, addMovie, fetchMovies, getStoredUser, getToken } from '@/utils/helpers';
+import type { Movie } from '@/types/index';
 
-export default {
-    name: 'HomePage',
-    components: {
-        MovieDetails
-    },
-    data() {
-        return {
-            movies: [],
-            filteredMovies: [],
-            favorites: [],
-            dataFetch: true,
-            selectedMovie: null
+const movies = ref<Movie[]>([]);
+const filteredMovies = ref<Movie[]>([]);
+const favMovieIds = ref<string[]>([]);
+const dataFetch = ref<boolean>(true)
+const selectedMovie = ref<Movie | null>(null);
+const route = useRoute();
+const router = useRouter();
+
+const handleAddMovie = async (movieId: string): Promise<void> => {
+    await addMovie(movieId);
+    const userData = getStoredUser()
+    if (!userData) return;
+    favMovieIds.value = userData.FavoriteMovies; // gets actual list with favs from local 
+}
+
+const handleDeleteMovie = async (movieId: string): Promise<void> => {
+    await deleteMovie(movieId);
+
+    const userData = getStoredUser()
+    if (!userData) return;
+    favMovieIds.value = userData.FavoriteMovies;
+}
+
+const isFavorite = (movieId: string): boolean => {
+    return favMovieIds.value.includes(movieId);
+}
+
+const fetchedMovies = async (): Promise<Movie[] | null> => {
+    dataFetch.value = true;
+    try {
+        const moviesData = await fetchMovies();
+        if (!moviesData) {
+            return null;
         }
-    },
-    watch: {
-        '$route.query.q': { // listen to changes in the $route.query.q ->http://localhost:8080/?q=x
-            immediate: true,  //  Runs when the component loads
-            handler(newQuery) {
-                this.filterMovies(newQuery || ''); // handler trigger the function with the new quary parameter 
-            }
-        }
-    },
-    methods: {
-        async handleAddMovie(movieId) {
-            await addMovie(movieId);
+        movies.value = moviesData;
+        filteredMovies.value = moviesData;// Show all movies initially
+        return moviesData;
 
-            const userData = JSON.parse(localStorage.getItem('user'));
-            this.favorites = userData.FavoriteMovies; // gets actual list with favs from local 
-        },
-
-        async handleDeleteMovie(movieId) {
-            await deleteMovie(movieId);
-
-            const userData = JSON.parse(localStorage.getItem('user'));
-            this.favorites = userData.FavoriteMovies;
-        },
-
-        isFavorite(movieId) {
-            return this.favorites.includes(movieId);
-        },
-
-        async fetchMovies() {
-            this.dataFetch = true;
-            const moviesData = await fetchMovies();
-            if (moviesData) {
-                this.movies = moviesData;
-                this.filteredMovies = moviesData;  // Show all movies initially
-            }
-            this.dataFetch = false;
-        },
-
-        filterMovies(query) {
-            if (!query) {
-                this.filteredMovies = this.movies;
-            } else {
-                const lowerCaseQuery = query.toLowerCase();
-                this.filteredMovies = this.movies.filter(movie =>
-                    movie.Title.toLowerCase().includes(lowerCaseQuery)
-                );
-            }
-        },
-        showMovieDetails(movie) {
-            this.selectedMovie = movie;
-        },
-    },
-    async mounted() {
-        let userData = JSON.parse(localStorage.getItem('user'));
-        let token = localStorage.getItem('token');
-
-        // Correct logic ensuring both checks are properly handled
-        if ((!userData || userData === "null") && !token) {
-            await this.$router.push({ name: 'LogIn' });
-            return;  // Prevent further code execution
-        }
-
-        // Fetch movies only if conditions are met
-        await this.fetchMovies();
-        this.filterMovies(this.$route.query.q || '');
-        this.favorites = userData.FavoriteMovies || [];
+    } catch (error) {
+        console.error('Error fetching movies:', error);
+        return null;
+    } finally {
+        dataFetch.value = false;
     }
 }
 
+const showMovieDetails = (movie: Movie): void => {
+    selectedMovie.value = movie;
+}
+const filterMovies = (query: string): void => {
+    if (!query) {
+        filteredMovies.value = movies.value;
+    } else {
+        const lowerCaseQuery = query.toLowerCase();
+        filteredMovies.value = movies.value.filter(movie =>
+            movie.Title.toLowerCase().includes(lowerCaseQuery)
+        );
+    }
+}
+
+watch(
+    () => route.query.q, // listen to changes in the route.query.q ->http://localhost:8080/?q=x
+
+    (newQuery) => {
+        filterMovies(newQuery as string || '');
+    }, // handler trigger the function with the new quary parameter 
+    { immediate: true } // Runs when the component loads/ mounts
+
+)
+
+onMounted(async (): Promise<void> => {
+    if (!(await checkAuth())) return;
+
+    await initMovies();
+});
+
+const checkAuth = async (): Promise<boolean> => {
+    const userData = getStoredUser();
+    const token = getToken();
+
+    if (!userData || !token) {
+        await router.push({ name: 'LogIn' });
+        return false;
+    }
+
+    favMovieIds.value = userData.FavoriteMovies || [];
+    return true;
+}
+
+const initMovies = async (): Promise<void> => {
+    const success = await fetchedMovies();
+
+    if (!success) {
+        alert('Failed to load movies. Please try again later.');
+        return;
+    }
+
+    filterMovies(route.query.q as string || '');
+}
 </script>
 <style>
 .movies_view {
@@ -137,12 +157,13 @@ export default {
 .movie-card {
     position: relative;
     overflow: hidden;
-    height: 47vh;
+    height: 60vh;
     min-width: 18vw;
     border-radius: 5px;
     background-color: black;
     box-shadow: 4px 4px 15px rgba(212, 209, 209, 0.2);
     padding: 10px;
+    margin: auto;
 }
 
 .movie_buttons_div {
@@ -198,7 +219,7 @@ export default {
 }
 
 .movie-card__img {
-    height: 40vh;
+    height: 45vh;
     padding-bottom: 10px;
     border-radius: 2px;
 }

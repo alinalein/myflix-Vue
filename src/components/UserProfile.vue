@@ -16,107 +16,124 @@
         </div>
     </div>
 </template>
-<script>
+<script lang="ts" setup>
 import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { getStoredUser, getToken } from '@/utils/helpers'
+import type { UpdateResponse } from '@/types/index'
 
-export default {
-    name: 'UserProfile',
-    data() {
-        return {
-            username: '',
-            email: '',
-            birthday: '',
+const username = ref<string>('')
+const email = ref<string>('')
+const birthday = ref<string>('')
+const router = useRouter()
+
+const formatDate = (date: string | Date | undefined): string => {
+    if (!date) return '';
+    const parsedDate = new Date(date).toISOString().split('T')[0];
+    return parsedDate
+}
+
+const updateProfile = async (): Promise<void> => {
+    const confirmation = confirm("Are you sure you want to change your details?");
+    if (!confirmation) {
+        return;
+    }
+    const formattedBirthday = formatDate(birthday.value)
+
+    try {
+        const userData = getStoredUser()
+        const token = getToken()
+        if (!userData || !token) { return }
+        const response = await axios.put<UpdateResponse>(`https://movie-api-lina-834bc70d6952.herokuapp.com/users/update/${userData.Username}`,
+            {
+                Username: username.value,
+                Email: email.value,
+                Birthday: formattedBirthday
+            }, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        })
+        if (response.status === 200) {
+            // the response date is not wrapped in updatedUser as it is the case for add movie return
+            const updatedUser = { ...userData, ...response.data };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+
+            // console.log('udated User', updatedUser)
+            username.value = updatedUser.Username;
+            email.value = updatedUser.Email;
+            birthday.value = formatDate(updatedUser.Birthday)
+
+            alert('Profile updated successfully!');
         }
-    },
-    methods: {
-        async updateProfile() {
-            const confirmation = confirm("Are you sure you want to change your details.");
-
-            if (!confirmation) {
-                return;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                alert('Permission denied');
+            } else if (error.response?.status === 409) {
+                alert(`${username.value} already exists, please pick another Username.`);
+            } else {
+                console.error('Error updating profile:', error.response?.data || error.message);
+                alert('An unexpected error occurred. Please try again.');
             }
-            const formattedBirthday = new Date(this.birthday).toISOString().split('T')[0];
-
-            try {
-                const user = JSON.parse(localStorage.getItem('user'))
-                const token = localStorage.getItem('token')
-                let response = await axios.put(`https://movie-api-lina-834bc70d6952.herokuapp.com/users/update/${user.Username}`,
-                    {
-                        Username: this.username,
-                        Email: this.email,
-                        Birthday: formattedBirthday
-
-                    }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-                if (response.status === 200) {
-                    // the response date is not wrapped in updatedUser as it is the case for add movie return
-                    const updatedUser = { ...user, ...response.data };
-                    localStorage.setItem('user', JSON.stringify(updatedUser));
-
-                    console.log('udated User', updatedUser)
-                    this.username = updatedUser.Username;
-                    this.email = updatedUser.Email;
-                    this.birthday = updatedUser.Birthday.split('T')[0];
-
-                    alert('Profile updated successfully!');
-                }
-            } catch (error) {
-                if (error.response?.status === 400) {
-                    alert('Permission denied')
-                } else if (error.response?.status === 409) {
-                    alert(`${this.username} already exists, please pick another Username.`);
-                } else {
-                    console.error('Error updating profile:', error.response?.data || error.message);
-                    alert('Unexpected error occured')
-                }
-            }
-        },
-        async deleteProfile() {
-            const confirmation = confirm("Are you sure you want to delete your profile? This action cannot be undone.");
-
-            if (!confirmation) {
-                return;
-            }
-            try {
-                const user = JSON.parse(localStorage.getItem('user'))
-                const token = localStorage.getItem('token')
-                let response = await axios.delete(`https://movie-api-lina-834bc70d6952.herokuapp.com/users/deregister/${user.Username}`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }
-                )
-
-                if (response.status === 200) {
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('token');
-                    this.$router.push({ name: 'SignUp' })
-                }
-            } catch (error) {
-                console.error('Error deleting profile:', error.response?.data || error.message);
-                alert('Profile could not be deleted')
-            }
-        },
-        formatDate(date) {
-            if (!date) return '';
-            const parsedDate = new Date(date);
-            return parsedDate.toLocaleDateString('en-GB'); // Formats as DD/MM/YYYY
-        }
-
-    },
-    mounted() {
-        const userData = JSON.parse(localStorage.getItem('user'));
-        if (userData && userData.Birthday) {
-            // Ensure the date is correctly formatted as "YYYY-MM-DD"
-            const parsedDate = new Date(userData.Birthday).toISOString().split('T')[0];
-            this.birthday = parsedDate;
-        }
-        if (userData) {
-            this.username = userData.Username || '';
-            this.email = userData.Email || '';
+        } else {
+            console.error('Unknown error:', error);
+            alert('An unexpected error occurred. Please try again.');
         }
     }
 }
+
+const deleteProfile = async (): Promise<void> => {
+    const confirmation = confirm('Are you sure you want to delete your profile? This action cannot be undone.');
+
+    if (!confirmation) {
+        return;
+    }
+    try {
+        const userData = getStoredUser()
+        const token = getToken()
+        if (!userData || !token) { return }
+        const response = await axios.delete(`https://movie-api-lina-834bc70d6952.herokuapp.com/users/deregister/${userData.Username}`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+        if (response.status === 200) {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            router.push({ name: 'SignUp' })
+        }
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            console.error('Error deleting profile:', error.response?.data || error.message);
+            alert('Profile could not be deleted');
+        } else {
+            console.error('Unknown error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        }
+    }
+}
+
+onMounted(async (): Promise<void> => {
+    try {
+        const userData = getStoredUser()
+
+        if (userData) {
+            birthday.value = formatDate(userData.Birthday)
+            username.value = userData.Username;
+            email.value = userData.Email;
+        }
+    } catch (error: unknown) {
+        console.error('Failed to parse user from localStorage:', error);
+        // if want to clear the bad data
+        // localStorage.removeItem('user');
+    }
+})
 </script>
 <style>
 .delete_profile {

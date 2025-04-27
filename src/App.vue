@@ -3,14 +3,8 @@
   <router-view />
 </template>
 
-<script>
-
+<script setup lang="ts">
 import AppNavigation from './components/AppNavigation.vue';
-
-export default {
-  name: 'App',
-  components: { AppNavigation }
-}
 </script>
 
 <style>

@@ -1,30 +1,29 @@
 <template>
     <div v-if="movie" class="movie-details">
         <div class="details_close">
-            <h1> {{ movie.Title }}</h1>
+            <h1> {{ props.movie.Title }}</h1>
             <button @click="$emit('close')">X</button>
         </div>
 
-        <img :src="movie.ImagePath" :alt="movie.Title" class="movie-details__img" />
+        <img :src="props.movie.ImagePath" :alt="props.movie.Title" class="movie-details__img" />
         <div class="details_details">
-            <p><strong>Director:</strong> {{ movie.Director.Name }}</p>
+            <p><strong>Director:</strong> {{ props.movie.Director.Name }}</p>
             <p><strong>Description:</strong> {{ movie.Description }}</p>
-            <p><strong>Genre:</strong> {{ movie.Genre.Name }}</p>
-            <p><strong>Actors:</strong> {{ movie.Actors.join(', ') }}</p>
+            <p><strong>Genre:</strong> {{ props.movie.Genre.Name }}</p>
+            <p><strong>Actors:</strong> {{ props.movie.Actors.join(', ') }}</p>
         </div>
     </div>
 </template>
 
-<script>
-export default {
-    props: {
-        movie: {
-            type: Object,
-            required: true
-        }
-    }
-}
+<script lang="ts" setup>
+import { defineProps } from 'vue';
+import type { Movie } from '@/types/index';
+
+const props = defineProps<{
+    movie: Movie;
+}>();
 </script>
+
 <style>
 .movie-details {
     position: fixed;
