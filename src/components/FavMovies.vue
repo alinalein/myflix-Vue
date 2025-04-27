@@ -2,7 +2,7 @@
     <div class="movies_view">
         <h1 class="fav_title">My Favorite Movies</h1>
         <div class="movies_div">
-            <div class="movie-card" v-for="movie in favMovies" :key="movie.id">
+            <div class="movie-card" v-for="movie in favMoviesObjects" :key="movie._id">
                 <img class="movie-card__img" :src="movie.ImagePath" :alt="movie.Title" />
                 <p>
                     {{ movie.Title }}
@@ -22,61 +22,50 @@
     <MovieDetails v-if="selectedMovie" :movie="selectedMovie" @close="selectedMovie = null" />
 </template>
 
-<script>
-import axios from 'axios';
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
+import { deleteMovie, getStoredUser, fetchMovies } from '@/utils/helpers';
 import MovieDetails from './MovieDetails.vue';
-import { deleteMovie } from '../utils/helpers';
-export default {
-    name: 'FavMovies',
-    components: {
-        MovieDetails
-    },
-    data() {
-        return {
-            movies: [],
-            favMovies: [],
-            selectedMovie: null
-        }
-    },
-    methods: {
-        async fetchMovies() {
-            try {
-                const token = localStorage.getItem('token')
-                let response = await axios.get('https://movie-api-lina-834bc70d6952.herokuapp.com/movies', {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-                if (response.status === 200) {
-                    this.movies = response.data;// Axios handles JSON parsing automatically
+import type { Movie } from '@/types/index';
 
-                    let user = JSON.parse(localStorage.getItem('user'));
+const movies = ref<Movie[]>([]);
+const favMoviesObjects = ref<Movie[]>([]);
+const selectedMovie = ref<Movie | null>(null);
 
+const loadFavMovies = async (): Promise<void> => {
+    const moviesData = await fetchMovies();
+    if (!moviesData) return;
 
-                    this.favMovies = this.movies.filter(movie => user.FavoriteMovies.includes(movie._id))
-                    console.log('favs', this.favMovies)
-                    console.log(user)
+    movies.value = moviesData;
 
-                }
-            } catch (error) {
-                console.error('Error fetching movies:', error.response ? error.response.data : error.message);
-                alert('An error occurred while fetching the movies.');
-            }
-        },
-        async handleDelete(movieId) {
-            try {
-                await deleteMovie(movieId);  // Call the delete function
-                this.favMovies = this.favMovies.filter(movie => movie._id !== movieId); // update UI 
-            } catch (error) {
-                console.error('Error deleting movie:', error.response?.data || error.message);
-            }
-        },
-        showMovieDetails(movie) {
-            this.selectedMovie = movie;
-        },
-    },
-    mounted() {
-        this.fetchMovies();
+    const user = getStoredUser();
+    if (user) {
+        favMoviesObjects.value = movies.value.filter(movie =>
+            user.FavoriteMovies.includes(movie._id)
+        );
     }
-}
+};
+
+const handleDelete = async (movieId: string): Promise<void> => {
+    try {
+        await deleteMovie(movieId);  // Call the delete function
+        favMoviesObjects.value = favMoviesObjects.value.filter(movie => movie._id !== movieId); // update UI 
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('Error deleting movie:', error.message);
+        } else {
+            console.error('Unknown error deleting movie:', error);
+        }
+    }
+};
+
+const showMovieDetails = (movie: Movie): void => {
+    selectedMovie.value = movie;
+};
+
+onMounted(async (): Promise<void> => {
+    await loadFavMovies();
+});
 </script>
 <style>
 .movie-card {

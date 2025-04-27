@@ -4,10 +4,10 @@ import UserProfile from "./components/UserProfile.vue";
 import FavMovies from "./components/FavMovies.vue";
 import GenrePage from "./components/GenrePage.vue";
 import SignUp from "./components/SignUp.vue"
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 
 
-const routes = [
+const routes: RouteRecordRaw[] = [
     {
         name: 'HomePage',
         component: HomePage,

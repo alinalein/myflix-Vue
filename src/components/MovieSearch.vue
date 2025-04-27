@@ -3,45 +3,47 @@
         <input v-model="searchQuery" @keyup="searchMovies" placeholder="Search for movies..." />
     </div>
 </template>
-<script>
+<script lang="ts" setup>
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router';
 
-export default {
-    name: 'MovieSearch',
-    data() {
-        return {
-            searchQuery: ''
-        };
-    },
-    methods: {
-        async searchMovies() {
-            const isOnHomePage = this.$route.name === 'HomePage';
+const searchQuery = ref<string>('')
+const router = useRouter()
+const route = useRoute()
 
-            // Use `push` if navigating to HomePage, otherwise use `replace` to update the query
-            this.$router[isOnHomePage ? 'replace' : 'push']({
-                name: 'HomePage',
-                query: { q: this.searchQuery }
-            });
-        },
+const searchMovies = async (): Promise<void> => {
+    const isOnHomePage = route.name === 'HomePage';
 
-        resetSearchQuery() {
-            if (this.$route.name !== 'HomePage') {
-                this.searchQuery = '';  //  reset the query when NOT on HomePage
+    // Use `push` if navigating to HomePage, otherwise use `replace` to update the query
+    const navigate = isOnHomePage ? router.replace : router.push;
 
-                this.$router.replace({ // updates the URL without adding a new history entry
-                    ...this.$route,
-                    query: { ...this.$route.query, q: undefined }// removes the query parameter 
-                });
-            }
-        }
-    },
-    watch: {
-        '$route'(to, from) { // detects when the route changes and resets the search query if the user navigates away from HomePage
-            if (to.name !== from.name && to.name !== 'HomePage') {
-                this.resetSearchQuery();
-            }
-        }
+    await navigate({
+        name: 'HomePage',
+        query: { q: searchQuery.value }
+    });
+}
+
+const resetSearchQuery = async () => {
+    if (route.name !== 'HomePage') {
+        searchQuery.value = '';  //  reset the query when NOT on HomePage
+
+        const newQuery = { ...route.query };
+        delete newQuery.q; // cleanly remove 'q' from the URL -> so  ?q= is not staying as with -> q: undefined 
+
+        await router.replace({// updates the URL without adding a new history entry
+            name: route.name as string,
+            query: newQuery
+        });
     }
 }
+watch(
+    () => route.name,  // detects when the route changes and resets the search query if the user navigates away from HomePage
+    (to: unknown, from: unknown) => {
+        if (to !== from && to !== 'HomePage') {
+            resetSearchQuery();
+        }
+    }
+);
 </script>
 <style>
 .search {

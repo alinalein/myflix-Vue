@@ -7,8 +7,8 @@
         <!-- Navigation Links (Visible by default, Hidden only on small screens) -->
         <div :class="['nav-links', { active: isMenuOpen }]">
             <template v-if="!isUserLoggedIn">
-                <router-link to="log-in">Login</router-link>
-                <router-link to="sign-up">Signup</router-link>
+                <router-link to="/log-in">Login</router-link>
+                <router-link to="/sign-up">Signup</router-link>
             </template>
             <template v-else>
                 <router-link to="/">Home</router-link>
@@ -24,59 +24,51 @@
                 <router-link to="/fav-movies">My List</router-link>
                 <MovieSearch />
                 <router-link to="/profile">My Profile</router-link>
-                <a v-on:click="logout" ref="">Log Out</a>
+                <a v-on:click="logout">Log Out</a>
             </template>
         </div>
     </div>
 </template>
-<script>
+<script lang="ts" setup>
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router';
 import MovieSearch from './MovieSearch.vue';
-export default {
-    name: 'AppNavigation',
-    components: {
-        MovieSearch
-    },
-    data() {
-        return {
-            // returns true when user logged in
-            isUserLoggedIn: !!localStorage.getItem('user'),
-            selectedGenre: '',
-            isMenuOpen: false,
-            genres: ['Action', 'Biography', 'Crime', 'Drama', 'Sci-Fi']
-        }
-    },
-    // created() {  //lifecycle hook-> executed after the component is initialized but before it's mounted.
-    //     //logic that requires imidiate data set up 
-    //     this.checkUserStatus();
 
-    // },
-    watch: { // watch track localStorage changes directly
-        '$route'() { // Rerun when route changes
-            this.isUserLoggedIn = !!localStorage.getItem('user');
-        }
-    },
-    methods: {
-        toggleMenu() {
-            this.isMenuOpen = !this.isMenuOpen;
-        },
-        checkUserStatus() {
-            let user = localStorage.getItem('user')
-            this.isUserLoggedIn = !!user; //!! check here if the value of user true (loogedin) OR false (not logged in)
-        },
-        navigateToGenre(selectedGenre) {
-            this.$router.push({ name: 'GenrePage', params: { genre: selectedGenre } });
-            this.isMenuOpen = false;
-        },
-        logout() {
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
-            this.isUserLoggedIn = false;
-            this.$router.push({ name: 'LogIn' })
-            this.isMenuOpen = false;
-        }
+// returns true when user logged in
+const isUserLoggedIn = ref<boolean>(!!localStorage.getItem('user'))
+const isMenuOpen = ref<boolean>(false)
+const genres = ref<string[]>(['Action', 'Biography', 'Crime', 'Drama', 'Sci-Fi'])
+const route = useRoute()
+const router = useRouter()
+
+// watch(source, callback)
+// source: something reactive you track (e.g., route.fullPath)
+// callback: what happens when it changes
+watch(// watch track localStorage changes directly
+    () => route.fullPath, //watch route changes (recommended to use fullPath)
+    () => {
+        isUserLoggedIn.value = !!localStorage.getItem('user');
     }
+)
+
+const toggleMenu = (): void => {
+    isMenuOpen.value = !isMenuOpen.value;
+}
+
+const navigateToGenre = (selectedGenre: string): void => {
+    router.push({ name: 'GenrePage', params: { genre: selectedGenre } });
+    isMenuOpen.value = false;
+}
+
+const logout = (): void => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    isUserLoggedIn.value = false;
+    router.push({ name: 'LogIn' })
+    isMenuOpen.value = false;
 }
 </script>
+
 <style>
 .nav {
     background-color: black;
