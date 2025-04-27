@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { Movie, AddMovieResponse, DeleteMovieResponse } from '@/types/index';
+import type { Ref } from 'vue';
 
 export const getStoredUser = (): { Username: string; Email: string; Birthday: string; FavoriteMovies: string[] } | null => {
     const rawUser = localStorage.getItem('user');
@@ -98,5 +99,25 @@ export const fetchMovies = async (): Promise<Movie[] | undefined> => {
             console.error('Unknown error:', error);
         }
         alert('An error occurred while fetching the movies.');
+    }
+}
+
+export function isFavorite(movieId: string, favMovieIds: string[]): boolean {
+    return favMovieIds.includes(movieId);
+}
+
+export async function updateFavoriteMoviesAfterAdd(movieId: string, favMovieIds: Ref<string[]>): Promise<void> {
+    await addMovie(movieId);
+    const userData = getStoredUser();
+    if (userData) {
+        favMovieIds.value = userData.FavoriteMovies;
+    }
+}
+
+export async function updateFavoriteMoviesAfterDelete(movieId: string, favMovieIds: Ref<string[]>): Promise<void> {
+    await deleteMovie(movieId);
+    const userData = getStoredUser();
+    if (userData) {
+        favMovieIds.value = userData.FavoriteMovies;
     }
 }

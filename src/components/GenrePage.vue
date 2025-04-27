@@ -9,10 +9,10 @@
                     <button class="show_button" @click="showMovieDetails(movie)">
                         Show Details
                     </button>
-                    <button class="fav_button" v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
+                    <button class="fav_button" v-if="checkIsFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
                         <i class="fas fa-heart" style="color: rgb(229, 9, 20); "></i>
                     </button>
-                    <button class="fav_button" v-if="!isFavorite(movie._id)" @click="handleAddMovie(movie._id)">
+                    <button class="fav_button" v-if="!checkIsFavorite(movie._id)" @click="handleAddMovie(movie._id)">
                         <i class="far fa-heart" style="color: rgb(229, 9, 20);"></i>
                     </button>
                 </div>
@@ -30,7 +30,10 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router';
 import MovieDetails from './MovieDetails.vue';
-import { deleteMovie, addMovie, fetchMovies, getStoredUser } from '@/utils/helpers';
+import {
+    updateFavoriteMoviesAfterAdd, updateFavoriteMoviesAfterDelete, isFavorite,
+    fetchMovies, getStoredUser
+} from '@/utils/helpers';
 import type { Movie } from '@/types/index'
 
 const movies = ref<Movie[]>([]);
@@ -54,23 +57,15 @@ watch(
 )
 
 const handleAddMovie = async (movieId: string): Promise<void> => {
-    await addMovie(movieId);
-
-    const userData = getStoredUser()
-    if (!userData) return;
-    favMovieIds.value = userData.FavoriteMovies; // gets actual list with favs from local 
+    await updateFavoriteMoviesAfterAdd(movieId, favMovieIds);
 }
 
 const handleDeleteMovie = async (movieId: string): Promise<void> => {
-    await deleteMovie(movieId);
-
-    const userData = getStoredUser()
-    if (!userData) return;
-    favMovieIds.value = userData.FavoriteMovies;
+    await updateFavoriteMoviesAfterDelete(movieId, favMovieIds);
 }
 
-const isFavorite = (movieId: string): boolean => {
-    return favMovieIds.value.includes(movieId);
+const checkIsFavorite = (movieId: string): boolean => {
+    return isFavorite(movieId, favMovieIds.value);
 }
 
 const showMovieDetails = (movie: Movie): void => {

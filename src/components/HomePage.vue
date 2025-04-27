@@ -9,10 +9,10 @@
                 <button class="show_button" @click="showMovieDetails(movie)">
                     Show Details
                 </button>
-                <button class="fav_button" v-if="isFavorite(movie._id)" @click="handleDeleteMovie(movie._id)">
+                <button class="fav_button" v-if="checkIsFavorite(movie._id)" @click="handleDeleteFavorite(movie._id)">
                     <i class="fas fa-heart" style="color: rgb(229, 9, 20); "></i>
                 </button>
-                <button class="fav_button" v-if="!isFavorite(movie._id)" @click="handleAddMovie(movie._id)">
+                <button class="fav_button" v-if="!checkIsFavorite(movie._id)" @click="handleAddFavorite(movie._id)">
                     <i class="far fa-heart" style="color: rgb(229, 9, 20);"></i>
                 </button>
             </div>
@@ -28,7 +28,10 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import MovieDetails from './MovieDetails.vue';
-import { deleteMovie, addMovie, fetchMovies, getStoredUser, getToken } from '@/utils/helpers';
+import {
+    fetchMovies, getStoredUser, getToken, isFavorite,
+    updateFavoriteMoviesAfterAdd, updateFavoriteMoviesAfterDelete
+} from '@/utils/helpers';
 import type { Movie } from '@/types/index';
 
 const movies = ref<Movie[]>([]);
@@ -39,23 +42,20 @@ const selectedMovie = ref<Movie | null>(null);
 const route = useRoute();
 const router = useRouter();
 
-const handleAddMovie = async (movieId: string): Promise<void> => {
-    await addMovie(movieId);
-    const userData = getStoredUser()
-    if (!userData) return;
-    favMovieIds.value = userData.FavoriteMovies; // gets actual list with favs from local 
+const handleAddFavorite = async (movieId: string): Promise<void> => {
+    await updateFavoriteMoviesAfterAdd(movieId, favMovieIds);
 }
 
-const handleDeleteMovie = async (movieId: string): Promise<void> => {
-    await deleteMovie(movieId);
-
-    const userData = getStoredUser()
-    if (!userData) return;
-    favMovieIds.value = userData.FavoriteMovies;
+const handleDeleteFavorite = async (movieId: string): Promise<void> => {
+    await updateFavoriteMoviesAfterDelete(movieId, favMovieIds);
 }
 
-const isFavorite = (movieId: string): boolean => {
-    return favMovieIds.value.includes(movieId);
+const showMovieDetails = (movie: Movie): void => {
+    selectedMovie.value = movie;
+}
+
+const checkIsFavorite = (movieId: string): boolean => {
+    return isFavorite(movieId, favMovieIds.value);
 }
 
 const fetchedMovies = async (): Promise<Movie[] | null> => {
@@ -77,9 +77,6 @@ const fetchedMovies = async (): Promise<Movie[] | null> => {
     }
 }
 
-const showMovieDetails = (movie: Movie): void => {
-    selectedMovie.value = movie;
-}
 const filterMovies = (query: string): void => {
     if (!query) {
         filteredMovies.value = movies.value;
