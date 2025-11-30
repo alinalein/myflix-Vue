@@ -33,6 +33,14 @@ npm run serve
 npm run build
 ```
 
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
 ## User stories 💃 🕺
 As a user, I want to be able to create a profile and log in, so that I can view information about movies.
 
